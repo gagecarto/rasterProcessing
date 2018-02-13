@@ -2,6 +2,9 @@
 ## A script for projecting, resampling and snapping a folder of geoTIFF files
 
 ### Getting Started
+Fork this repo or get the raw script from here
+https://raw.githubusercontent.com/gagecarto/rasterProcessing/master/rasterFixer.R
+
 1) To get started add all the geoTIFF files you would like to process to an empty folder. These files must be stored as geoTIFF and must all intersect
 
 2) Run the script. You can use R or RStudio. You can either copy and paste the entire script in R or open and run using the Source button in RStudio
