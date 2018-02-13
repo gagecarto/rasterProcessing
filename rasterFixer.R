@@ -1,4 +1,9 @@
-require('raster')
+if(!require('raster')){
+  install.packages("raster")
+  require(raster)
+} else{
+  require('raster')
+}
 
 workingDirectory<-choose.dir()
 
@@ -135,6 +140,7 @@ writeFinalFiles<-function(){
     writeRaster(thisRaster,paste0(exportDirectory,'\\',thisRasterName,'Ed.tif'),overwrite=TRUE)
   }
   print('PROCESSING FINISHED... Final, processed rasters have been written with "Ed" on their filename to the directory you selected')
+  rm(rastersToProcessHolder)
 }
 
 importRasters()
