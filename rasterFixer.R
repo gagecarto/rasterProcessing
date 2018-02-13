@@ -51,8 +51,7 @@ checkPrjs <- function(){
     masterProjection<<-uniqueProjections[[1]]
     projection(dummyRaster) <<- masterProjection
     print(paste0('Nice job preparing your data! All datasets have the same projection of ',masterProjection,' moving on to check data resolutions'))
-    reprojectRasters()
-    # checkCellSizes()
+    reprojectRasters()    
   }
 }
 
