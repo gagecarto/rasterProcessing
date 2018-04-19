@@ -5,7 +5,18 @@ if(!require('raster')){
   require('raster')
 }
 
-workingDirectory<-choose.dir()
+if(!require('rgdal')){
+  install.packages("rgdal")
+  require(rgdal)
+} else{
+  require('rgdal')
+}
+
+
+
+workingDirectory<<-choose.dir(caption="Select the folder that contains the geoTIFF files you'd like to process")
+
+exportDirectory<<-choose.dir(caption="Choose an empty folder where you would like all the final, processed files written upon completion")
 
 rastersToProcess<-list.files(workingDirectory,pattern='.tif$')
 
@@ -20,7 +31,6 @@ masterResolution<-NULL
 
 dummyRaster<-raster()
 
-finalRasters<-list()
 
 importRasters <- function (){
   for(i in 1:length(rastersToProcess)){
@@ -51,23 +61,24 @@ checkPrjs <- function(){
     masterProjection<<-uniqueProjections[[1]]
     projection(dummyRaster) <<- masterProjection
     print(paste0('Nice job preparing your data! All datasets have the same projection of ',masterProjection,' moving on to check data resolutions'))
-    reprojectRasters()    
+    reprojectRasters()
   }
 }
 
 reprojectRasters<-function(){
   for(i in 1:length(rastersToProcessHolder)){
-    thisRaster<-rastersToProcessHolder[[i]]
-    thisCrs<<-thisRaster@crs
-    thisRasterName<-thisRaster@data@names
-    resolutions[[i]]<<-res(thisRaster)
-    extents[[i]]<<-thisRaster@extent
+    gc()
+    # thisRaster<-rastersToProcessHolder[[i]]
+    # thisCrs<<-thisRaster@crs
+    thisCrs<-rastersToProcessHolder[[i]]@crs
+    thisRasterName<-rastersToProcessHolder[[i]]@data@names
+    resolutions[[i]]<<-res(rastersToProcessHolder[[i]])
+    extents[[i]]<<-rastersToProcessHolder[[i]]@extent
     if(thisCrs@projargs!=masterProjection@projargs){
      print(paste0(thisRasterName,' has a projection different than what you have selected.. Reprojecting now..'))
-      thisRaster<-projectRaster(thisRaster,crs=masterProjection)
-      rastersToProcessHolder[[i]]<<-thisRaster
-      resolutions[[i]]<<-res(thisRaster)
-      extents[[i]]<<-thisRaster@extent
+      rastersToProcessHolder[[i]]<-projectRaster(rastersToProcessHolder[[i]],crs=masterProjection)
+      resolutions[[i]]<<-res(rastersToProcessHolder[[i]])
+      extents[[i]]<<-rastersToProcessHolder[[i]]@extent
     } else{
       print(paste0(thisRasterName,' has the master projection.. Nice! Move along then..'))
     }
@@ -122,24 +133,25 @@ snapExtents<-function(){
   for(i in 1:length(rastersToProcessHolder)){
     print(paste0('snapping raster ',i,' of ',length(rastersToProcessHolder)))
     flush.console()
-    thisRaster<-rastersToProcessHolder[[i]]
-    thisRaster<-resample(thisRaster,dummyRaster,method=snappingMethod)
-    finalRasters[[i]]<<-thisRaster
+    rastersToProcessHolder[[i]]<<-resample(rastersToProcessHolder[[i]],dummyRaster,method=snappingMethod)
   }
   writeFinalFiles()
 }
 
 writeFinalFiles<-function(){
-  exportDirectory<-choose.dir()
-  for(i in 1:length(finalRasters)){
+
+  for(i in 1:length(rastersToProcessHolder)){
     print(paste0('writing final raster ',i,' of ',length(rastersToProcessHolder)))
     flush.console()
-    thisRaster<-finalRasters[[i]]
+    thisRaster<-rastersToProcessHolder[[i]]
     thisRasterName<-thisRaster@data@names
-    writeRaster(thisRaster,paste0(exportDirectory,'\\',thisRasterName,'Ed.tif'),overwrite=TRUE)
+    writeRaster(rastersToProcessHolder[[i]],paste0(exportDirectory,'\\',thisRasterName,'Ed.tif'),overwrite=TRUE)
   }
-  print('PROCESSING FINISHED... Final, processed rasters have been written with "Ed" on their filename to the directory you selected')
+  finishedRasters<<-rastersToProcessHolder
   rm(rastersToProcessHolder)
+  saveRDS(finishedRasters,paste0(exportDirectory,'\\','finalRastersList.rds'))
+  print('PROCESSING FINISHED... Final, processed rasters have been written with "Ed" on their filename to the export directory you selected')
+  print('Additionally, final rasters are now stored and available in a R list object called finishedRasters. This object has been saved as a RDS file in your selected export directory.')
 }
 
 importRasters()

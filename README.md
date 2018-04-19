@@ -21,5 +21,8 @@ https://raw.githubusercontent.com/gagecarto/rasterProcessing/master/rasterFixer.
 
 8) Once everything finished there will be an object remaining in memory called "finalRasters". This is a list holding all your finished files. You could now stack these using the stack command like newStack<-stack(finalRasters)
 
-### WARNINGS
+### KNOWN ISSUES  
+
+1) Sometimes when reprojecting rasters from a global projection like World Eckert IV, R ran out of memory. If you see this script crash because of specific memory errors during processing, investigate which raster and CRS caused the problem. Simply reprojecting this one file may fix the issue
+
 This script is definitely in beta form. There are no error handlers or notifications if something goes wrong. We hope to add some error handling in the future. If you find an issue, submit a comment on this github page and we will try and repair the script  
