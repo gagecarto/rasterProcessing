@@ -134,19 +134,17 @@ snapExtents<-function(){
     print(paste0('snapping raster ',i,' of ',length(rastersToProcessHolder)))
     flush.console()
     rastersToProcessHolder[[i]]<<-resample(rastersToProcessHolder[[i]],dummyRaster,method=snappingMethod)
-  }
-  writeFinalFiles()
-}
 
-writeFinalFiles<-function(){
-
-  for(i in 1:length(rastersToProcessHolder)){
-    print(paste0('writing final raster ',i,' of ',length(rastersToProcessHolder)))
+    print(paste0('saving snapped raster final raster ',i,' of ',length(rastersToProcessHolder)))
     flush.console()
     thisRaster<-rastersToProcessHolder[[i]]
     thisRasterName<-thisRaster@data@names
     writeRaster(rastersToProcessHolder[[i]],paste0(exportDirectory,'\\',thisRasterName,'Ed.tif'),overwrite=TRUE)
   }
+  writeFinalFiles()
+}
+
+writeFinalFiles<-function(){
   finishedRasters<<-rastersToProcessHolder
   rm(rastersToProcessHolder)
   saveRDS(finishedRasters,paste0(exportDirectory,'\\','finalRastersList.rds'))
